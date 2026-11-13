@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+# Rules on the lots. Shown on src/pages/inline_maps.mdx.
+type: map
+id: rules-on-lots
+config:
+  mapStyle: "/style.json"
+  center: [-73.9190, 40.8652]
+  zoom: 14.3
+  scrollZoom: false
+
+legend:
+  position: bottom-left
+  items:
+    - { label: "(E)-designated lot (E-459)", color: "#d7191c" }
+    - { label: FEMA 1% flood zone, color: "#2b7bba" }
+    - { label: Special Inwood District, color: "#6a3d9a", shape: line }
+    - { label: 1924 shoreline, color: "#c0392b", shape: line }
+
+layers:
+
+  - id: special-district
+    type: line
+    label: Special Inwood District (2018 rezoning)
+    source:
+      type: geojson
+      url: "/data/special_inwood_district.geojson"
+    paint:
+      line-color: "#6a3d9a"
+      line-width: 2.5
+      line-dasharray: [3, 2]
+    legend: false
+
+  - id: fema
+    type: fill
+    label: FEMA 1% flood zone (today)
+    source:
+      type: geojson
+      url: "/data/fema_1pct_AE.geojson"
+    paint:
+      fill-color: "#2b7bba"
+      fill-opacity: 0.35
+    legend: false
+
+  - id: e-lots
+    type: fill
+    label: (E)-designated lots, E-459 (73)
+    legend: false
+    source:
+      type: geojson
+      url: "/data/e_designated_lots.geojson"
+    paint:
+      fill-color: "#d7191c"
+      fill-opacity: 0.3
+      fill-outline-color: "#a50f15"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: address
+          - p:
+              - property: enumber
+              - str: " (2018 Inwood rezoning)"
+          - p:
+              - str: "Hazardous materials testing: "
+              - property: hazmat
+          - p:
+              - str: "Air quality limits: "
+              - property: air
+          - p:
+              - str: "Noise (window/ventilation): "
+              - property: noise
+          - p:
+              - str: "In today's FEMA zone: "
+              - property: in_fema
+
+  - id: shoreline-1924
+    type: line
+    label: 1924 shoreline
+    source:
+      type: geojson
+      url: "/data/shoreline_1924.geojson"
+    paint:
+      line-color: "#c0392b"
+      line-width: 2.5
+    legend: false
+
+  - id: place-names
+    type: symbol
+    label: Place names
+    legend: false
+    source:
+      type: geojson
+      url: "/data/place_names.geojson"
+    layout:
+      text-field: ["get", "name"]
+      text-font: ["Noto Sans Bold"]
+      text-size: 12
+      text-letter-spacing: 0.1
+    paint:
+      text-color: "#333333"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5

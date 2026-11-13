@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+# What is at risk later. Shown on src/pages/inline_maps.mdx.
+type: map
+id: at-risk-later
+config:
+  mapStyle: "/style.json"
+  center: [-73.9190, 40.8652]
+  zoom: 14.3
+  scrollZoom: false
+
+legend:
+  position: bottom-left
+  items:
+    - { label: Homes in 2080s floodplain, color: "#08519c" }
+    - { label: "Facility: schools, child care & youth", color: "#e6550d", shape: circle }
+    - { label: "Facility: health & human services", color: "#31a354", shape: circle }
+    - { label: "Facility: transportation & city operations", color: "#636363", shape: circle }
+    - { label: "Facility: parks & culture", color: "#3182bd", shape: circle }
+    - { label: FEMA 1% flood zone (today), color: "#2b7bba" }
+    - { label: 2080s 100-year floodplain, color: "#08306b", shape: line }
+    - { label: "Flood vulnerability (light low, dark high)", color: "#de2d26" }
+
+layers:
+
+  - id: fvi
+    type: fill
+    visible: false
+    label: Flood Vulnerability Index (tracts)
+    legend: false
+    source:
+      type: geojson
+      url: "/data/fvi_tracts.geojson"
+    classify:
+      field: vuln
+      categories:
+        "1 Lowest": "#fee5d9"
+        "2 Low": "#fcae91"
+        "3 Moderate": "#fb6a4a"
+        "4 High": "#de2d26"
+        "5 Highest": "#a50f15"
+    paint:
+      fill-opacity: 0.55
+      fill-outline-color: "#ffffff"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "Census tract "
+              - property: geoid
+          - p:
+              - str: "Flood vulnerability (social): "
+              - property: vuln
+
+  - id: fema
+    type: fill
+    label: FEMA 1% flood zone (today)
+    source:
+      type: geojson
+      url: "/data/fema_1pct_AE.geojson"
+    paint:
+      fill-color: "#2b7bba"
+      fill-opacity: 0.35
+    legend: false
+
+  - id: flood-2080s
+    type: line
+    label: 2080s 100-year floodplain
+    source:
+      type: geojson
+      url: "/data/flood_2080s_100yr.geojson"
+    paint:
+      line-color: "#08306b"
+      line-width: 2
+      line-dasharray: [2, 1]
+    legend: false
+
+  - id: homes-2080s
+    type: fill
+    label: Homes in the 2080s floodplain (158 lots)
+    legend: false
+    source:
+      type: geojson
+      url: "/data/homes_exposed_2080s.geojson"
+    paint:
+      fill-color: "#08519c"
+      fill-opacity: 0.35
+      fill-outline-color: "#08306b"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: Address
+          - p:
+              - str: "Homes: "
+              - property: UnitsRes
+          - p:
+              - str: "Year built: "
+              - property: YearBuilt
+          - p:
+              - str: "Owner: "
+              - property: OwnerName
+          - p:
+              - str: "Already in today's FEMA zone: "
+              - property: in_fema
+
+  - id: facilities-2080s
+    type: circle
+    label: Public facilities in the 2080s floodplain
+    legend: false
+    source:
+      type: geojson
+      url: "/data/facilities_2080s.geojson"
+    classify:
+      field: group
+      categories:
+        "Schools, child care & youth": "#e6550d"
+        "Health & human services": "#31a354"
+        "Transportation & city operations": "#636363"
+        "Parks & culture": "#3182bd"
+      other: "#999999"
+    paint:
+      circle-radius: 5
+      circle-stroke-color: "#ffffff"
+      circle-stroke-width: 1
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: FACNAME
+          - p:
+              - property: FACTYPE
+          - p:
+              - property: ADDRESS
+
+  - id: place-names
+    type: symbol
+    label: Place names
+    legend: false
+    source:
+      type: geojson
+      url: "/data/place_names.geojson"
+    layout:
+      text-field: ["get", "name"]
+      text-font: ["Noto Sans Bold"]
+      text-size: 12
+      text-letter-spacing: 0.1
+    paint:
+      text-color: "#333333"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5

@@ -2,109 +2,80 @@ import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import { SITE } from "@consts";
 import { Map, loadMapConfig } from "@maplibre-yaml/astro";
-import { Image } from "astro:assets";
-import fiskMap from "../assets/img/fisk02.jpg";
 
 {/*
-  Each map is a YAML file in src/maps/. loadMapConfig reads and checks it
-  when the site builds: a mistake in the YAML stops `npm run build` (and shows
-  in `npm run dev`) with the file, line and column, instead of reaching your
-  site. The path starts at the project folder.
+  Four inline maps that tell the atlas argument in order. Each map is a YAML
+  file in src/maps/ and uses the same layers and colors as the full page map.
 */}
-export const squirrels = await loadMapConfig("./src/maps/squirrels.yaml");
-export const bikeLanes = await loadMapConfig("./src/maps/bike-lanes.yaml");
-export const layerToggles = await loadMapConfig("./src/maps/layers.yaml");
-export const locator = await loadMapConfig("./src/maps/static.yaml");
+export const edgeRemade = await loadMapConfig("./src/maps/edge-remade.yaml");
+export const rulesOnLots = await loadMapConfig("./src/maps/rules-on-lots.yaml");
+export const whoBuilds = await loadMapConfig("./src/maps/who-builds-where.yaml");
+export const atRisk = await loadMapConfig("./src/maps/at-risk-later.yaml");
 
-<PageLayout title="Inline maps" description={SITE.DESCRIPTION}>
+<PageLayout title="Inwood's Edge" description="How a remade shoreline shapes new investment in Inwood, Manhattan.">
 <Container>
 <article>
 
-# Inline maps
+# Inwood's Edge
 
-This page is `src/pages/inline_maps.mdx`. It is written in
-[MDX](https://mdxjs.com/): Markdown for the text, plus components such as
-`<Map>` wherever you want a map. Each map's layers, colours and popups live in
-a YAML file in `src/maps/`.
+How a remade shoreline shapes new investment, from Dyckman Street to West 218th Street.
 
-## Points from a data file, with a popup and a legend
+## 1. The edge was remade
 
-Every sighting from the 2018 Central Park Squirrel Census, coloured by fur
-colour. **Click a squirrel** to see its details. The data is
-`public/data/squirrel20241021.geojson`; the map is `src/maps/squirrels.yaml`.
+In 1924, much of this edge was vacant land, rail and water. The red line is
+the 1924 shoreline. Land shaded brown on the river side of it, about 55 acres,
+is made land: Sherman Creek and marsh that were filled in later. Tick
+**Land use today** in the layer panel to compare. Click a lot for details.
+The 1924 land use is my reading of a blurry aerial, so the groups are broad.
 
-<Map config={squirrels} height="60vh" class="map-frame not-prose" />
+<Map config={edgeRemade} height="60vh" class="map-frame not-prose" />
 
-## Lines from a data file
+## 2. Rules on the lots
 
-Manhattan's bike lanes, a snapshot from
-[NYC Open Data](https://opendata.cityofnewyork.us/) saved in
-`public/data/manhattan-bike-lanes.geojson` (`src/maps/bike-lanes.yaml`).
-Click a lane for its street name.
+The 2018 Inwood rezoning created the Special Inwood District (dashed purple)
+and placed (E) designations on 73 lots (red). An (E) designation means a
+developer must test for hazardous materials, and on some lots meet air-quality
+or noise rules, before building. Most of them line 9th and 10th Avenues,
+the old industrial strip near the river, and 12 overlap today's FEMA 1% flood
+zone (blue). Click an (E) lot to see its rules.
 
-<Map config={bikeLanes} height="50vh" class="map-frame not-prose" />
+<Map config={rulesOnLots} height="60vh" class="map-frame not-prose" />
 
-## Turning layers on and off
+## 3. Who builds where
 
-Give a layer a `label:` and it gets a checkbox in the panel at the top right.
-The bike lanes start switched off (`visible: false`); tick them
-(`src/maps/layers.yaml`).
+Twenty new buildings have been filed since 2018. Every private project (black)
+sits outside today's FEMA flood zone, about 1,585 homes in total. The only
+housing filed on the flood line is North Cove, 611 fully affordable homes
+(green). Public and nonprofit sponsors are building where private developers
+are not. Click a dot for the sponsor, homes and filing date.
 
-<Map config={layerToggles} height="50vh" class="map-frame not-prose" />
+<Map config={whoBuilds} height="60vh" class="map-frame not-prose" />
 
-## A map beside text
+## 4. What is at risk later
 
-Put a map and text side by side with two columns. Below a medium-sized screen
-the columns stack, map first. This map doesn't move: `interactive: false` in
-`src/maps/static.yaml`.
+By the 2080s, the 100-year floodplain (dark dashed line) is projected to reach
+well past today's FEMA zone. Inside it are 158 residential lots with about
+8,990 homes (blue), and 109 public facilities. More than half of those
+facilities are schools, child care and youth programs. Tick **Flood
+Vulnerability Index** to see social vulnerability by census tract. Most of
+these homes are in lower-score tracts, so the risk here comes more from where
+things were built than from who lives there.
 
-<div class="not-prose grid gap-6 md:grid-cols-2 items-center my-8">
-  <Map config={locator} height="320px" class="map-frame my-0" />
-  <div class="prose dark:prose-invert prose-p:font-serif">
-    <h3>Central Park</h3>
-    <p>
-      843 acres in the middle of Manhattan, and home to a few thousand eastern
-      gray squirrels. Write anything here: paragraphs, <strong>bold</strong>,
-      lists, links such as
-      <a href="https://www.centralparknyc.org/">the Central Park Conservancy</a>.
-    </p>
-  </div>
-</div>
+<Map config={atRisk} height="60vh" class="map-frame not-prose" />
 
-## Images
+These maps show where risk, rules and investment overlap. They do not by
+themselves prove that the old shoreline caused today's pattern. To see every
+layer together, open the [full page map](../full_page_map/).
 
-To show an image, put the file in `src/assets/img/`, import it at the top of
-the page (`import fiskMap from "../assets/img/fisk02.jpg"`) and show it with
-`<Image>`. Astro resizes it to `width` when the site builds: this scan is 4 MB
-on disk and much smaller on the page.
+## Data attribution
 
-<Image
-  src={fiskMap}
-  width={600}
-  alt="Harold Fisk's 1944 map of the ancient courses of the Mississippi River"
-/>
-
-A plain Markdown image, `![description](../assets/img/fisk02.jpg)`, works too,
-but keeps the image at its full size.
-
-## Embeds
-
-HTML works too, for example an `<iframe>` with a video or another site's map:
-
-<iframe
-  title="OpenStreetMap: Central Park"
-  src="https://www.openstreetmap.org/export/embed.html?bbox=-73.9819,40.7644,-73.9496,40.8006&layer=mapnik"
-  style="width: 100%; height: 300px; border: 0;"
-  loading="lazy"
-></iframe>
-
-## A subsection
-
-You can go into more detail here.
-
-### A further subsection
-
-And even more detail here.
+NYC Department of City Planning (MapPLUTO, Facilities Database, (E)
+Designations, Special Purpose Districts, Borough Boundaries); FEMA flood zones;
+NYC Flood Hazard Mapper (2080s 100-year floodplain); NYC Mayor's Office of
+Climate and Environmental Justice (Flood Vulnerability Index); NYC Department
+of Buildings (DOB NOW and BIS job filings); NYC historical aerial
+photographs (1924, 1951); basemap
+© OpenStreetMap contributors, OpenFreeMap.
 
 </article>
 </Container>

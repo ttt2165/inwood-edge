@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+# Who builds where. Shown on src/pages/inline_maps.mdx.
+type: map
+id: who-builds-where
+config:
+  mapStyle: "/style.json"
+  center: [-73.9190, 40.8652]
+  zoom: 14.3
+  scrollZoom: false
+
+legend:
+  position: bottom-left
+  items:
+    - { label: "New building: public, nonprofit or affordable", color: "#1a9850", shape: circle }
+    - { label: "New building: private", color: "#252525", shape: circle }
+    - { label: FEMA 1% flood zone, color: "#2b7bba" }
+    - { label: Made land (filled since 1924), color: "#a0522d" }
+    - { label: 1924 shoreline, color: "#c0392b", shape: line }
+
+layers:
+
+  - id: fema
+    type: fill
+    label: FEMA 1% flood zone (today)
+    source:
+      type: geojson
+      url: "/data/fema_1pct_AE.geojson"
+    paint:
+      fill-color: "#2b7bba"
+      fill-opacity: 0.35
+    legend: false
+
+  - id: made-land
+    type: fill
+    label: Made land (filled since 1924)
+    source:
+      type: geojson
+      url: "/data/made_land.geojson"
+    paint:
+      fill-color: "#a0522d"
+      fill-opacity: 0.45
+    legend: false
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: name
+          - p:
+              - str: "Land on the river side of the 1924 shoreline. Acres: "
+              - property: acres
+
+  - id: shoreline-1924
+    type: line
+    label: 1924 shoreline
+    source:
+      type: geojson
+      url: "/data/shoreline_1924.geojson"
+    paint:
+      line-color: "#c0392b"
+      line-width: 2.5
+    legend: false
+
+  - id: new-buildings
+    type: circle
+    label: New buildings filed since 2018
+    legend: false
+    source:
+      type: geojson
+      url: "/data/new_buildings_2018.geojson"
+    classify:
+      field: sponsor
+      categories:
+        "Public, nonprofit or 100% affordable": "#1a9850"
+        "Private developer": "#252525"
+      other: "#999999"
+    paint:
+      circle-radius: 7
+      circle-stroke-color: "#ffffff"
+      circle-stroke-width: 2
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: name
+          - p:
+              - property: sponsor
+          - p:
+              - str: "Homes: "
+              - property: homes
+          - p:
+              - str: "Owner on filing: "
+              - property: owner
+          - p:
+              - str: "First filed: "
+              - property: filed
+          - p:
+              - str: "Lot in today's FEMA zone: "
+              - property: fema
+
+  - id: place-names
+    type: symbol
+    label: Place names
+    legend: false
+    source:
+      type: geojson
+      url: "/data/place_names.geojson"
+    layout:
+      text-field: ["get", "name"]
+      text-font: ["Noto Sans Bold"]
+      text-size: 12
+      text-letter-spacing: 0.1
+    paint:
+      text-color: "#333333"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5

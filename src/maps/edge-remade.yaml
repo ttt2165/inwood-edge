@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+# The edge was remade. Shown on src/pages/inline_maps.mdx.
+type: map
+id: edge-remade
+config:
+  mapStyle: "/style.json"
+  center: [-73.9190, 40.8652]
+  zoom: 14.3
+  scrollZoom: false
+
+legend:
+  position: bottom-left
+  items:
+    - { label: Housing, color: "#f2d388" }
+    - { label: "Commercial, public & parking", color: "#e8896b" }
+    - { label: Industrial, color: "#9b6fb0" }
+    - { label: "Transportation & utility", color: "#a7a7a7" }
+    - { label: "Parks & open space", color: "#8cc084" }
+    - { label: "Vacant or undeveloped", color: "#e9e4d8" }
+    - { label: "Water or marsh, 1924 (filled later)", color: "#9ecae1" }
+    - { label: Made land (filled since 1924), color: "#a0522d" }
+    - { label: 1924 shoreline, color: "#c0392b", shape: line }
+
+layers:
+
+  - id: landuse-1924
+    type: fill
+    label: Land use 1924
+    legend: false
+    source:
+      type: geojson
+      url: "/data/landuse_1924.geojson"
+    classify:
+      field: cls
+      categories:
+        Housing: "#f2d388"
+        "Commercial, public & parking": "#e8896b"
+        Industrial: "#9b6fb0"
+        "Transportation & utility": "#a7a7a7"
+        "Parks & open space": "#8cc084"
+        "Vacant or undeveloped": "#e9e4d8"
+        "Water or marsh (filled later)": "#9ecae1"
+      other: "#dddddd"
+    paint:
+      fill-opacity: 0.8
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "1924: "
+              - property: cls
+          - p:
+              - property: use
+          - p:
+              - str: "Acres: "
+              - property: acres
+
+  - id: landuse
+    type: fill
+    visible: false
+    label: Land use today
+    legend: false
+    source:
+      type: geojson
+      url: "/data/landuse_today.geojson"
+    classify:
+      field: cls
+      categories:
+        Housing: "#f2d388"
+        "Commercial, public & parking": "#e8896b"
+        Industrial: "#9b6fb0"
+        "Transportation & utility": "#a7a7a7"
+        "Parks & open space": "#8cc084"
+        "Vacant or undeveloped": "#e9e4d8"
+      other: "#dddddd"
+    paint:
+      fill-opacity: 0.75
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: cls
+          - p:
+              - str: "Land use: "
+              - property: use
+          - p:
+              - str: "Lot size (acres): "
+              - property: acres
+
+  - id: made-land
+    type: fill
+    label: Made land (filled since 1924)
+    source:
+      type: geojson
+      url: "/data/made_land.geojson"
+    paint:
+      fill-color: "#a0522d"
+      fill-opacity: 0.45
+    legend: false
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: name
+          - p:
+              - str: "Land on the river side of the 1924 shoreline. Acres: "
+              - property: acres
+
+  - id: shoreline-1924
+    type: line
+    label: 1924 shoreline
+    source:
+      type: geojson
+      url: "/data/shoreline_1924.geojson"
+    paint:
+      line-color: "#c0392b"
+      line-width: 2.5
+    legend: false
+
+  - id: study-area
+    type: line
+    label: Study area
+    source:
+      type: geojson
+      url: "/data/study_area.geojson"
+    paint:
+      line-color: "#333333"
+      line-width: 1.5
+      line-dasharray: [4, 2]
+    legend: false
+
+  - id: place-names
+    type: symbol
+    label: Place names
+    legend: false
+    source:
+      type: geojson
+      url: "/data/place_names.geojson"
+    layout:
+      text-field: ["get", "name"]
+      text-font: ["Noto Sans Bold"]
+      text-size: 12
+      text-letter-spacing: 0.1
+    paint:
+      text-color: "#333333"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5
