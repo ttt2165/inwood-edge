@@ -1,18 +1,143 @@
 # yaml-language-server: $schema=https://docs.maplibre-yaml.org/schema/latest/map.schema.json
+#
+# Inwood's Edge: How a remade shoreline influences future investments
+# Layers are listed bottom to top. Layers with visible: false start switched
+# off; tick them in the layer panel.
 type: map
 id: full-page
 config:
   mapStyle: "/style.json"
-  center: [-73.9195, 40.8630]
-  zoom: 15
+  center: [-73.9190, 40.8652]
+  zoom: 14.5
 
 legend:
   position: bottom-left
+  title: Legend
+  items:
+    - { label: Housing, color: "#f2d388" }
+    - { label: "Commercial, public & parking", color: "#e8896b" }
+    - { label: Industrial, color: "#9b6fb0" }
+    - { label: "Transportation & utility", color: "#a7a7a7" }
+    - { label: "Parks & open space", color: "#8cc084" }
+    - { label: "Vacant or undeveloped", color: "#e9e4d8" }
+    - { label: "Water or marsh, 1924 (filled later)", color: "#9ecae1" }
+    - { label: Made land (filled since 1924), color: "#a0522d" }
+    - { label: FEMA 1% flood zone, color: "#2b7bba" }
+    - { label: 1924 shoreline, color: "#c0392b", shape: line }
+    - { label: "(E)-designated lot (E-459)", color: "#d7191c" }
+    - { label: "New building: public, nonprofit or affordable", color: "#1a9850", shape: circle }
+    - { label: "New building: private", color: "#252525", shape: circle }
+    - { label: 2080s 100-year floodplain, color: "#08306b", shape: line }
+    - { label: Special Inwood District, color: "#6a3d9a", shape: line }
+    - { label: "Flood vulnerability (light low, dark high)", color: "#de2d26" }
+    - { label: Study area, color: "#333333", shape: line }
 
 layers:
+  # ---------- WHO LIVES HERE ----------
+  - id: fvi
+    type: fill
+    label: Flood Vulnerability Index (tracts)
+    legend: false
+    visible: false
+    source:
+      type: geojson
+      url: "/data/fvi_tracts.geojson"
+    classify:
+      field: vuln
+      categories:
+        "1 Lowest": "#fee5d9"
+        "2 Low": "#fcae91"
+        "3 Moderate": "#fb6a4a"
+        "4 High": "#de2d26"
+        "5 Highest": "#a50f15"
+    paint:
+      fill-opacity: 0.55
+      fill-outline-color: "#ffffff"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "Census tract "
+              - property: geoid
+          - p:
+              - str: "Flood vulnerability (social): "
+              - property: vuln
+
+  # ---------- LAND USE OVER TIME ----------
+  - id: landuse-1924
+    type: fill
+    label: Land use 1924
+    legend: false
+    visible: false
+    source:
+      type: geojson
+      url: "/data/landuse_1924.geojson"
+    classify:
+      field: cls
+      categories:
+        Housing: "#f2d388"
+        "Commercial, public & parking": "#e8896b"
+        Industrial: "#9b6fb0"
+        "Transportation & utility": "#a7a7a7"
+        "Parks & open space": "#8cc084"
+        "Vacant or undeveloped": "#e9e4d8"
+        "Water or marsh (filled later)": "#9ecae1"
+      other: "#dddddd"
+    paint:
+      fill-opacity: 0.8
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "1924: "
+              - property: cls
+          - p:
+              - property: use
+          - p:
+              - str: "Acres: "
+              - property: acres
+
+  - id: landuse-1951
+    type: fill
+    label: Land use 1951
+    visible: false
+    legend: false
+    source:
+      type: geojson
+      url: "/data/landuse_1951.geojson"
+    classify:
+      field: cls
+      categories:
+        Housing: "#f2d388"
+        "Commercial, public & parking": "#e8896b"
+        Industrial: "#9b6fb0"
+        "Transportation & utility": "#a7a7a7"
+        "Parks & open space": "#8cc084"
+      other: "#dddddd"
+    paint:
+      fill-opacity: 0.8
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - str: "1951: "
+              - property: cls
+          - p:
+              - property: use
+          - p:
+              - str: "Acres: "
+              - property: acres
+
   - id: landuse
     type: fill
     label: Land use today
+    legend: false
     source:
       type: geojson
       url: "/data/landuse_today.geojson"
@@ -42,6 +167,41 @@ layers:
               - str: "Lot size (acres): "
               - property: acres
 
+  # ---------- THE REMADE EDGE ----------
+  - id: water-1924
+    type: fill
+    label: Creek, marsh and river, 1924
+    visible: false
+    source:
+      type: geojson
+      url: "/data/water_1924.geojson"
+    paint:
+      fill-color: "#6baed6"
+      fill-opacity: 0.35
+    legend: { label: "Creek, marsh and river, 1924", color: "#6baed6", shape: square }
+
+  - id: made-land
+    type: fill
+    label: Made land (filled since 1924)
+    source:
+      type: geojson
+      url: "/data/made_land.geojson"
+    paint:
+      fill-color: "#a0522d"
+      fill-opacity: 0.45
+    legend: { label: Made land (filled since 1924), color: "#a0522d", shape: square }
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: name
+          - p:
+              - str: "Land on the river side of the 1924 shoreline. Acres: "
+              - property: acres
+
+  # ---------- RECORDED FLOOD RISK ----------
   - id: fema
     type: fill
     label: FEMA 1% flood zone (today)
@@ -66,6 +226,87 @@ layers:
       line-dasharray: [2, 1]
     legend: { label: 2080s 100-year floodplain, color: "#08306b", shape: line }
 
+  - id: homes-2080s
+    type: fill
+    label: Homes in the 2080s floodplain (158 lots)
+    visible: false
+    legend: { label: Homes in 2080s floodplain, color: "#08519c", shape: square }
+    source:
+      type: geojson
+      url: "/data/homes_exposed_2080s.geojson"
+    paint:
+      fill-color: "#08519c"
+      fill-opacity: 0.35
+      fill-outline-color: "#08306b"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: Address
+          - p:
+              - str: "Homes: "
+              - property: UnitsRes
+          - p:
+              - str: "Year built: "
+              - property: YearBuilt
+          - p:
+              - str: "Owner: "
+              - property: OwnerName
+          - p:
+              - str: "Already in today's FEMA zone: "
+              - property: in_fema
+
+  # ---------- RULES ON THE LOTS ----------
+  - id: special-district
+    type: line
+    label: Special Inwood District (2018 rezoning)
+    visible: false
+    source:
+      type: geojson
+      url: "/data/special_inwood_district.geojson"
+    paint:
+      line-color: "#6a3d9a"
+      line-width: 2.5
+      line-dasharray: [3, 2]
+    legend: { label: Special Inwood District, color: "#6a3d9a", shape: line }
+
+  - id: e-lots
+    type: fill
+    label: (E)-designated lots, E-459 (73)
+    legend: { label: "(E)-designated lot (E-459)", color: "#d7191c", shape: square }
+    source:
+      type: geojson
+      url: "/data/e_designated_lots.geojson"
+    paint:
+      fill-color: "#d7191c"
+      fill-opacity: 0.3
+      fill-outline-color: "#a50f15"
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: address
+          - p:
+              - property: enumber
+              - str: " (2018 Inwood rezoning)"
+          - p:
+              - str: "Hazardous materials testing: "
+              - property: hazmat
+          - p:
+              - str: "Air quality limits: "
+              - property: air
+          - p:
+              - str: "Noise (window/ventilation): "
+              - property: noise
+          - p:
+              - str: "In today's FEMA zone: "
+              - property: in_fema
+
+  # ---------- LINES AND FRAME ----------
   - id: shoreline-1924
     type: line
     label: 1924 shoreline
@@ -89,18 +330,27 @@ layers:
       line-dasharray: [4, 2]
     legend: { label: Study area, color: "#333333", shape: line }
 
-  - id: schools
+  # ---------- WHO AND WHAT IS THERE ----------
+  - id: facilities-2080s
     type: circle
-    label: Schools (K-12)
+    label: Public facilities in the 2080s floodplain
+    legend: false
+    visible: false
     source:
       type: geojson
-      url: "/data/schools.geojson"
+      url: "/data/facilities_2080s.geojson"
+    classify:
+      field: group
+      categories:
+        "Schools, child care & youth": "#e6550d"
+        "Health & human services": "#31a354"
+        "Transportation & city operations": "#636363"
+        "Parks & culture": "#3182bd"
+      other: "#999999"
     paint:
       circle-radius: 5
-      circle-color: "#ffffff"
-      circle-stroke-color: "#222222"
-      circle-stroke-width: 1.5
-    legend: { label: Schools (K-12), color: "#222222", shape: circle }
+      circle-stroke-color: "#ffffff"
+      circle-stroke-width: 1
     interactive:
       hover:
         cursor: pointer
@@ -109,4 +359,62 @@ layers:
           - h3:
               - property: FACNAME
           - p:
+              - property: FACTYPE
+          - p:
               - property: ADDRESS
+
+  - id: new-buildings
+    type: circle
+    label: New buildings filed since 2018
+    legend: false
+    source:
+      type: geojson
+      url: "/data/new_buildings_2018.geojson"
+    classify:
+      field: sponsor
+      categories:
+        "Public, nonprofit or 100% affordable": "#1a9850"
+        "Private developer": "#252525"
+      other: "#999999"
+    paint:
+      circle-radius: 7
+      circle-stroke-color: "#ffffff"
+      circle-stroke-width: 2
+    interactive:
+      hover:
+        cursor: pointer
+      click:
+        popup:
+          - h3:
+              - property: name
+          - p:
+              - property: sponsor
+          - p:
+              - str: "Homes: "
+              - property: homes
+          - p:
+              - str: "Owner on filing: "
+              - property: owner
+          - p:
+              - str: "First filed: "
+              - property: filed
+          - p:
+              - str: "Lot in today's FEMA zone: "
+              - property: fema
+
+  - id: place-names
+    type: symbol
+    label: Place names
+    legend: false
+    source:
+      type: geojson
+      url: "/data/place_names.geojson"
+    layout:
+      text-field: ["get", "name"]
+      text-font: ["Noto Sans Bold"]
+      text-size: 12
+      text-letter-spacing: 0.1
+    paint:
+      text-color: "#333333"
+      text-halo-color: "#ffffff"
+      text-halo-width: 1.5

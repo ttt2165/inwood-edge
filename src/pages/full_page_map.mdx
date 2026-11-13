@@ -11,11 +11,11 @@ export const map = await loadMapConfig("./src/maps/full-page.yaml");
     config={map}
     style="top: var(--header-h); height: calc(100vh - var(--header-h));"
   >
-    <div slot="top-left" class="hidden sm:block rounded bg-white/90 px-3 py-2 text-sm text-stone-700 shadow max-w-64">
-      <strong>Inwood's Edge: Sherman Creek and the Waterfront</strong><br />
-      Lots are colored by today's land use. Compare the FEMA 1% flood zone with
-      the 2080s floodplain (tick it in the layer panel) and the 1924 shoreline.
-      Click a lot or a school for details.
+    <div slot="top-left" class="hidden sm:block rounded bg-white/90 px-3 py-2 text-sm text-stone-700 shadow max-w-72">
+      <strong>Inwood's Edge: How a remade shoreline shapes new investment</strong><br />
+      Brown is land made since 1924 (red line = 1924 shoreline). Red lots carry (E)
+      designations. Dots are new buildings since 2018: green = public, nonprofit or
+      affordable; black = private. More layers in the panel; click for details.
     </div>
   </FullPageMap>
 </PageLayout>
